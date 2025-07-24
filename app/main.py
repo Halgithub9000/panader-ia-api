@@ -3,12 +3,26 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 from .database import get_db, engine, Base
 from .models import ProductoDB, PedidoDB, PedidoProductoDB, Producto, PedidoCreate, PedidoProductoItem, Pedido
+from fastapi.middleware.cors import CORSMiddleware
+import os
 
 # Crear las tablas en la base de datos (solo la primera vez o si no existen)
 # OJO: Esto es para desarrollo. En producción, usa migraciones (Alembic).
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+# Configuración de CORS con orígenes desde variable de entorno
+origins_env = os.getenv("CORS_ORIGINS", "*")
+allow_origins = [o.strip() for o in origins_env.split(",") if o.strip()]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allow_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # --- Endpoints ---
 
